@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Tyler's Automobile Parts & Supply</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root{
+    --steel-dark:#1B1E22; --steel-darker:#101215; --concrete:#EDE8E0; --paper:#F7F4EE;
+    --orange:#E8562A; --orange-dark:#C4441E; --gray-mid:#6B7178; --gray-line:#D8D2C6; --ink:#1B1E22;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--steel-dark); color:var(--paper); font-family:'Inter',sans-serif; min-height:100vh;}
+  h1,h2,.display{font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:0.02em;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  label{display:block; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:#B7B2A7; margin-bottom:6px; font-family:'JetBrains Mono',monospace;}
+  input, select, textarea{
+    width:100%; padding:11px 12px; background:var(--steel-darker); border:2px solid #3A3D42;
+    color:var(--paper); font-family:'Inter',sans-serif; font-size:0.9rem;
+  }
+  input:focus, select:focus, textarea:focus{outline:none; border-color:var(--orange);}
+  textarea{resize:vertical; min-height:70px;}
+  .btn{
+    display:inline-block; font-family:'Oswald',sans-serif; font-weight:600; text-transform:uppercase;
+    letter-spacing:0.06em; font-size:0.82rem; padding:12px 22px; border:none; cursor:pointer;
+  }
+  .btn-orange{background:var(--orange); color:var(--paper);}
+  .btn-orange:hover{background:var(--orange-dark);}
+  .btn-ghost{background:transparent; color:#B7B2A7; border:1px solid #3A3D42;}
+
+  /* login gate */
+  #loginGate{
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .login-box{background:var(--steel-darker); border:2px solid var(--orange); padding:36px; width:100%; max-width:360px;}
+  .login-box h1{font-size:1.3rem; margin-bottom:6px;}
+  .login-box p{font-size:0.8rem; color:#9A968D; margin-bottom:20px;}
+  .login-error{color:var(--orange); font-size:0.78rem; margin-top:10px; font-family:'JetBrains Mono',monospace;}
+
+  /* admin body */
+  #adminApp{display:none; max-width:1000px; margin:0 auto; padding:36px 24px 80px;}
+  .admin-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; flex-wrap:wrap; gap:12px;}
+  .admin-header h1{font-size:1.6rem;}
+  .panel{background:var(--steel-darker); border:2px solid #3A3D42; padding:24px; margin-bottom:28px;}
+  .panel h2{font-size:1.1rem; margin-bottom:18px;}
+  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .form-grid .full{grid-column:1/-1;}
+  .form-actions{margin-top:20px; display:flex; gap:12px; align-items:center;}
+  .form-msg{font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:#F4B400;}
+
+  .list-row{
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+    padding:14px 0; border-bottom:1px solid #3A3D42;
+  }
+  .list-row:last-child{border-bottom:none;}
+  .list-row .name{font-weight:600;}
+  .list-row .meta{font-size:0.75rem; color:#9A968D; font-family:'JetBrains Mono',monospace; margin-top:2px;}
+  .list-row .price{font-family:'Oswald',sans-serif; font-weight:700; color:var(--orange);}
+  .remove-btn{background:none; border:1px solid #3A3D42; color:#B7B2A7; padding:6px 12px; font-size:0.72rem; cursor:pointer; font-family:'JetBrains Mono',monospace;}
+  .remove-btn:hover{border-color:var(--orange); color:var(--orange);}
+  .empty{color:#7A766D; font-size:0.85rem; font-family:'JetBrains Mono',monospace;}
+</style>
+</head>
+<body>
+
+<div id="loginGate">
+  <div class="login-box">
+    <h1>Shop Admin</h1>
+    <p>This page is for shop management only — customers never see this. Enter the admin password to continue.</p>
+    <label>Password</label>
+    <input type="password" id="passwordInput" onkeydown="if(event.key==='Enter') login()">
+    <button class="btn btn-orange" style="margin-top:14px; width:100%;" onclick="login()">Enter</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<div id="adminApp">
+  <div class="admin-header">
+    <h1>Shop Admin</h1>
+    <a href="/" class="btn btn-ghost" style="text-decoration:none;">View Storefront →</a>
+  </div>
+
+  <div class="panel">
+    <h2>Post a Part</h2>
+    <div class="form-grid">
+      <div>
+        <label>Part Name</label>
+        <input type="text" id="fName" placeholder="e.g. Alternator - 2015 Civic">
+      </div>
+      <div>
+        <label>Category</label>
+        <select id="fCategory">
+          <option>Engine</option><option>Brakes</option><option>Electrical</option>
+          <option>Body</option><option>Transmission</option><option>Interior</option><option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label>Price (USD)</label>
+        <input type="text" id="fPrice" placeholder="e.g. 85">
+      </div>
+      <div>
+        <label>Condition</label>
+        <select id="fCondition"><option>New</option><option>Used</option><option>Refurbished</option></select>
+      </div>
+      <div class="full">
+        <label>Description</label>
+        <textarea id="fDesc" placeholder="Fitment, mileage, part number, any wear or damage..."></textarea>
+      </div>
+      <div>
+        <label>Contact Email for This Part</label>
+        <input type="text" id="fEmail" placeholder="you@example.com">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-orange" onclick="addProduct()">List This Part</button>
+      <span class="form-msg" id="formMsg"></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Current Listings</h2>
+    <div id="listingsWrap"><div class="empty">Loading...</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Shop Info (shown to customers)</h2>
+    <div class="form-grid">
+      <div><label>Email</label><input type="text" id="editEmail"></div>
+      <div><label>Phone</label><input type="text" id="editPhone"></div>
+      <div><label>Location</label><input type="text" id="editLocation"></div>
+      <div><label>Hours</label><input type="text" id="editHours"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-orange" onclick="saveInfo()">Save Info</button>
+      <span class="form-msg" id="infoMsg"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+let adminPassword = '';
+let products = [];
+
+function login(){
+  const pw = document.getElementById('passwordInput').value;
+  const err = document.getElementById('loginError');
+  err.textContent = 'Checking...';
+  fetch('/api/admin-check', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ password: pw })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if(data.ok){
+        adminPassword = pw;
+        document.getElementById('loginGate').style.display = 'none';
+        document.getElementById('adminApp').style.display = 'block';
+        loadProducts();
+        loadInfo();
+      } else {
+        err.textContent = 'Wrong password.';
+      }
+    })
+    .catch(() => { err.textContent = 'Could not reach the server. Try again.'; });
+}
+
+async function loadProducts(){
+  const res = await fetch('/api/products');
+  products = await res.json();
+  renderListings();
+}
+
+function renderListings(){
+  const wrap = document.getElementById('listingsWrap');
+  if(products.length === 0){
+    wrap.innerHTML = '<div class="empty">No parts listed yet.</div>';
+    return;
+  }
+  wrap.innerHTML = products.map(p => `
+    <div class="list-row">
+      <div>
+        <div class="name">${escapeHtml(p.name)}</div>
+        <div class="meta">${escapeHtml(p.category)} · ${escapeHtml(p.condition)}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div class="price">${p.price ? '$'+escapeHtml(p.price) : 'Ask'}</div>
+        <button class="remove-btn" onclick="removeProduct('${p.id}')">Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+async function addProduct(){
+  const name = document.getElementById('fName').value.trim();
+  const category = document.getElementById('fCategory').value;
+  const price = document.getElementById('fPrice').value.trim();
+  const condition = document.getElementById('fCondition').value;
+  const description = document.getElementById('fDesc').value.trim();
+  const email = document.getElementById('fEmail').value.trim();
+  const msg = document.getElementById('formMsg');
+
+  if(!name || !price){
+    msg.textContent = 'Name and price are required.';
+    return;
+  }
+
+  const res = await fetch('/api/products', {
+    method:'POST',
+    headers:{'Content-Type':'application/json', 'x-admin-password': adminPassword},
+    body: JSON.stringify({ name, category, price, condition, description, email })
+  });
+
+  if(!res.ok){
+    msg.textContent = 'Something went wrong listing that part.';
+    return;
+  }
+
+  await loadProducts();
+  document.getElementById('fName').value = '';
+  document.getElementById('fPrice').value = '';
+  document.getElementById('fDesc').value = '';
+  document.getElementById('fEmail').value = '';
+  msg.textContent = 'Listed.';
+  setTimeout(()=> msg.textContent = '', 3000);
+}
+
+async function removeProduct(id){
+  await fetch('/api/products?id=' + encodeURIComponent(id), {
+    method:'DELETE', headers:{ 'x-admin-password': adminPassword }
+  });
+  await loadProducts();
+}
+
+async function loadInfo(){
+  const res = await fetch('/api/shop-info');
+  const info = await res.json();
+  document.getElementById('editEmail').value = info.email || '';
+  document.getElementById('editPhone').value = info.phone || '';
+  document.getElementById('editLocation').value = info.location || '';
+  document.getElementById('editHours').value = info.hours || '';
+}
+
+async function saveInfo(){
+  const body = {
+    email: document.getElementById('editEmail').value.trim(),
+    phone: document.getElementById('editPhone').value.trim(),
+    location: document.getElementById('editLocation').value.trim(),
+    hours: document.getElementById('editHours').value.trim(),
+  };
+  const msg = document.getElementById('infoMsg');
+  const res = await fetch('/api/shop-info', {
+    method:'POST',
+    headers:{'Content-Type':'application/json', 'x-admin-password': adminPassword},
+    body: JSON.stringify(body)
+  });
+  msg.textContent = res.ok ? 'Saved.' : 'Something went wrong.';
+  setTimeout(()=> msg.textContent = '', 3000);
+}
+</script>
+
+</body>
+</html>

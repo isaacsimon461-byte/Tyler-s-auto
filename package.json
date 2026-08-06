@@ -1,0 +1,10 @@
+{
+  "name": "tylers-automobile-parts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@vercel/kv": "^1.0.1",
+    "stripe": "^16.2.0"
+  }
+}
